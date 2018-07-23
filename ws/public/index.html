@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>jQuery UI Datepicker - Default functionality</title>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+  $( function() {
+  
+    $( "#datepicker" ).datepicker();	
+	//here set the datepicker initial value which is the date for now
+	$('#datepicker').val(new Date().toLocaleDateString());
+
+	//this part is for method_2 only, if u use method_1 it is not needed
+    $( "#datepicker2" ).datepicker();	
+    $('#datepicker2').val(new Date().toLocaleDateString());
+
+
+    $("#method2").submit(function(event){
+		//this prevent the default submit behavior
+		event.preventDefault();
+		
+		
+		//read date value
+		var  dateValue = $('#datepicker2').val();
+        
+		//validate the data here maybe if u want.
+		
+		
+		var dataStr = "name=" + dateValue  ;
+		
+		//send post request
+		var webServiceUrl = "http://localhost:8080/greeting?" + dataStr; 
+		$.get( webServiceUrl,  //ur web service url
+				function(data){ // function run when post request is successful
+				  // redirect to another page maybe ?? 
+				  alert(decodeURIComponent(data) + " from backend");
+				  console.log('ok');
+				} 
+	     ).fail(function(){ // when post request fails
+		    //show some error info maybe ??  
+			console.log('fail');
+		 });
+	});
+	//<!--end method_2-->
+
+
+	//this part is for method_3 only, if u use method_1 it is not needed
+    $( "#datepicker3" ).datepicker();	
+    $('#datepicker3').val(new Date().toLocaleDateString());
+	$("#method3").submit(function(event){
+		//this prevent the default submit behavior
+		event.preventDefault();
+		
+		
+		//read date value
+		var  dateValue = $('#datepicker3').val();
+        
+		//validate the data here maybe if u want.
+		
+		
+		//make a json string		
+		var jsonStr = '{name:"'+ dateValue + '"}';
+		
+		//send post request
+		var webServiceUrl = "http://localhost:8080/greetingPost"; 
+		$.post( webServiceUrl,  //ur web service url
+		        jsonStr,  // the jsonStr 
+				function(data){ // function run when post request is successful
+				  // redirect to another page maybe ?? 
+				  alert(decodeURIComponent(data) + " from backend");				  
+				  console.log('ok');
+				}
+	     ).fail(function(){ // when post request fails
+		    //show some error info maybe ??  
+			console.log('fail');
+		 });
+	});
+	//<!--end method_3-->
+
+
+	
+	
+	
+  });
+  
+   
+  function resetDate(selector){
+	  console.log('resetDate');
+     $(selector).val(new Date().toLocaleDateString());
+  }
+  
+  
+  </script>
+</head>
+<body>
+
+<!--method_1
+     method using form action, in this case, the post body will be something like "name:testDate"
+
+-->
+<h1>method_1:form with get</h1>
+<hr>
+<form action="/greeting" method="get"> 
+	<p>Date: <input type="text" id="datepicker" name="name"></p>
+	<button onclick="resetDate('#datepicker')" type="button">reset</button>
+	<button type="submit">show</button>
+</form>
+<!--end method_1-->
+
+<!--method_2
+    method using jquery 
+-->
+<h1>method_2:form with get using jquery</h1>
+<hr>
+<form id="method2">
+	<p>Date: <input type="text" id="datepicker2" name="name"></p>
+	<button onclick="resetDate('#datepicker2')" type="button">reset</button>
+	<button type="submit" >show</button>
+</form>
+<!--end method_2-->
+
+<!--method_3
+    method post using jquery 
+-->
+<h1>method_1:form with get using jquery</h1>
+<hr>
+<form id="method3">
+	<p>Date: <input type="text" id="datepicker3" name="name"></p>
+	<button onclick="resetDate('#datepicker3')" type="button">reset</button>
+	<button type="submit" >show</button>
+</form>
+<!--end method_3-->
+
+</body>
+</html>
