@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>shasha</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--js contains only data-->
+    <script type="text/javascript" src="data/data.js"></script>
+    <!--end js contains only data-->
+
+
+    <!--vendor-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
+    <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"> -->
+
+    <link type="text/css" href="css/custom-theme/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+    <script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <!--end vendor-->
+
+
+    <style>
+
+        body {
+            padding-top: 80px;
+            padding-bottom: 20px;
+        }
+
+
+        /* Set some basic padding to keep content from hitting the edges */
+
+        .body-content {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+    </style>
+    <script type="text/javascript">
+
+
+
+
+        //init
+        $(function () {
+            //google chart init
+            google.charts.load('current', { 'packages': ['corechart'] });
+            google.charts.setOnLoadCallback(drawChartWithFilter);
+
+            //main function for drawing chart 
+            //
+            collapseManagement();
+
+            //datePicker
+            $('.datepicker').datepicker({
+                inline: true
+            });
+            $('.datepicker').val(new Date().toLocaleDateString());
+
+            //collapseManagement for windows resize
+            $(window).resize(function () {
+                collapseManagement();
+                drawChartWithFilter();
+            });
+
+
+
+        });
+        function drawChartWithFilter() {
+
+            var lowFilter = new Date($('#lowDate').val());
+            var highFilter = new Date($('#highDate').val());
+            
+            if (lowFilter > highFilter ||lowFilter ==NaN || highFilter == NaN) {
+                alert("the date range is not valid!");
+                return;
+            }
+
+
+           
+            var filteredData = filterWithDate(sensorData, lowFilter, highFilter);
+            if (Array.isArray(filteredData))
+                drawChart(filteredData);
+            else{
+                $('#chart_div').empty();
+                $('#chart_div').append('nothing found');
+            }
+
+            //this uses hardcoded value, but u can do the save as for the function above 
+            drawPieChart();
+        }
+
+        function filterWithDate(orgData, lowFilter, highFilter) {
+            
+            var result = [];
+
+            if (!Array.isArray(orgData))
+                return ;
+
+            //header    
+            result.push(orgData[0]);
+            
+             for(var i=0;i<orgData.length;i++){
+                 var item = orgData[i];
+                 var dateFromItem = new Date(item[0]);
+                 if(dateFromItem == NaN)
+                    continue;
+
+                 if(dateFromItem <= highFilter && dateFromItem >= lowFilter){
+                     result.push(item);
+                 }   
+
+             }
+             return result;
+        }
+
+        function drawPieChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Task', 'Hours per Day'],
+                ['Work', 11],
+                ['Eat', 2],
+                ['Commute', 2],
+                ['Watch TV', 2],
+                ['Sleep', 7]
+            ]);
+
+            var options = {
+                title: 'My Daily Activities'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+            chart.draw(data, options);
+
+        }
+
+        //
+        function drawChart(drawData) {
+            var data = google.visualization.arrayToDataTable(
+                drawData
+            );
+
+            var options = {
+                title: 'Sensor Data',
+                hAxis: { title: 'Date', titleTextStyle: { color: '#333' } },
+                vAxis: { minValue: 0 }
+            };
+            var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+
+        //ui 
+        function collapseManagement() {
+            if ($(window).width() < 1024)
+                $('.collapse').collapse('hide');
+            else
+                $('.collapse').collapse('show');
+        };
+
+    </script>
+</head>
+
+<body>
+    <!--nav bar-->
+    <div class="container">
+        <div class="row">
+            <nav class="navbar navbar-inverse navbar-fixed-top">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand">Sensor Data</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li>
+                            <a>Home</a>
+                        </li>
+                        <li>
+                            <a>About</a>
+                        </li>
+                        <li>
+                            <a>Contact</a>
+                        </li>
+                    </ul>
+
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!--end nav bar-->
+
+
+    <div class="container body">
+
+        <div class="row">
+            <!--filter-->
+            <div class="col-lg-2 col-sm-12 col-xs-12 col-md-3">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" href="#dateRangeFilter">
+                                    Filter
+                                </a>
+                                <a class="pull-right" data-toggle="collapse" href="#dateRangeFilter">
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="dateRangeFilter" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <div class="filter-setting">
+                                    <form>
+                                        <!--dateRange-->
+                                        <label>Date range</label>
+                                        <a class="pull-right collapsed-icon-toggle" href="#collDateRange" data-toggle="collapse">
+                                            <span class="glyphicon glyphicon-minus on-opened"></span>
+                                            <span class="glyphicon glyphicon-plus on-closed"></span>
+                                        </a>
+                                        <br />
+                                        <div id="collDateRange" class="collapse in">
+                                            <input id="lowDate" type="text" class="form-control datepicker" /> -
+                                            <input id="highDate" type="text" class="form-control datepicker" />
+                                        </div>
+                                        <hr class="line" />
+                                        <!--end dateRange-->
+
+                                        <!--button-->
+                                        <div class="form-group">
+                                            <button type="button" onclick="drawChartWithFilter()" class="btn btn-block btn-primary">
+                                                <span class="glyphicon glyphicon-search"></span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <!-- chart-->
+            <div class="col-lg-10 col-sm-12 col-xs-12 col-md-9">
+                <div id="chart_div" style="width:100%;height: 500px;"></div>
+
+                <hr class="line" />
+
+                <div id="piechart" style="width:100%;height: 500px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+</body>
+
+</html>
