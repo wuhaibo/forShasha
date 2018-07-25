@@ -50,6 +50,14 @@
 
         //init
         $(function () {
+
+//start show how to json
+$.getJSON("https://localhost:44330/jasonobject.json", function(data){
+
+    Console.log(data.length);
+});
+//end start show how to json
+
             //google chart init
             google.charts.load('current', { 'packages': ['corechart'] });
             google.charts.setOnLoadCallback(drawChartWithFilter);
